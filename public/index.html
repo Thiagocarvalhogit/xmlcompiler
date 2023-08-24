@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dados do Live Streaming</title>
+    <style>
+        /* Your CSS styles here */
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        #output {
+            margin: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 12px; /* Increase padding for more space */
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #ddd;
+        }
+
+        /* Change color of Start Time to red */
+        td.startTime {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        Insira a URL: <input type="text" id="xmlUrl">
+        <button id="fetchButton">Executar</button>
+    </div>
+    <div id="output"></div>
+
+    <script>
+        document.getElementById('fetchButton').addEventListener('click', async () => {
+            const xmlUrl = document.getElementById('xmlUrl').value;
+
+            try {
+                const response = await fetch(`/fetch-xml?xmlUrl=${encodeURIComponent(xmlUrl)}`);
+
+                if (!response.ok) {
+                    throw new Error('Error fetching or parsing XML data.');
+                }
+
+                const data = await response.json();
+                const outputDiv = document.getElementById('output');
+                outputDiv.innerHTML = `
+                    <h2>Dados Live Streaming</h2>
+                    <table>
+                        <tr>
+                            <th>Source</th>
+                            <th>Name</th>
+                            <th>Start Time</th>
+                            <th>Sport</th>
+                            <th>Context</th>
+                            <th>RTMP ID</th>
+                            <th>RTMP URL</th>
+                        </tr>
+                        ${data.map(item => `
+                            <tr>
+                                <td>${item.source}</td>
+                                <td>${item.name}</td>
+                                <td class="startTime">${item.startTime}</td>
+                                <td>${item.sport}</td>
+                                <td>${item.context}</td>
+                                <td>${item.rtmpID}</td>
+                                <td>${item.rtmpURL}</td>
+                            </tr>
+                        `).join('')}
+                    </table>
+                `;
+            } catch (error) {
+                console.error('Error fetching or parsing XML:', error);
+                const outputDiv = document.getElementById('output');
+                outputDiv.innerHTML = '<p>Error fetching or parsing XML data.</p>';
+            }
+        });
+    </script>
+</body>
+</html>
